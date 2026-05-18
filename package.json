@@ -1,0 +1,11 @@
+{
+  "name": "dashboard-piezas",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo \"Static dashboard ready\""
+  },
+  "dependencies": {
+    "@netlify/blobs": "^9.1.0"
+  }
+}

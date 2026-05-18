@@ -1,0 +1,1200 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard de piezas</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --soft: #eef3f8;
+      --ink: #17202d;
+      --muted: #627087;
+      --line: #d9e1ea;
+      --navy: #243b6b;
+      --teal: #1f9d8a;
+      --coral: #e0634f;
+      --gold: #d99a2b;
+      --violet: #7357c7;
+      --sky: #2f80c5;
+      --rose: #c44d8f;
+      --shadow: 0 14px 34px rgba(28, 39, 61, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100svh;
+      display: grid;
+      place-items: start center;
+      overflow: auto;
+    }
+
+    .stage {
+      width: 1280px;
+      height: 720px;
+      transform-origin: top left;
+      margin: 0 auto;
+    }
+
+    .page {
+      width: 1280px;
+      height: 720px;
+      margin: 0 auto;
+      padding: 16px 20px;
+      display: grid;
+      grid-template-rows: auto auto minmax(0, 1fr);
+      gap: 8px;
+      background:
+        linear-gradient(180deg, rgba(36, 59, 107, 0.09), transparent 260px),
+        var(--bg);
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 18px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(1.85rem, 3.6vw, 2.75rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .eyebrow,
+    .kpi-label,
+    th {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 850;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .date-pill,
+    button {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.82);
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 8px 20px rgba(28, 39, 61, 0.07);
+    }
+
+    .date-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 13px;
+    }
+
+    button {
+      cursor: pointer;
+      padding: 8px 15px;
+      color: #ffffff;
+      background: var(--navy);
+      border-color: var(--navy);
+    }
+
+    button:hover {
+      filter: brightness(1.06);
+    }
+
+    .ghost-button {
+      color: var(--navy);
+      background: #ffffff;
+      border-color: var(--line);
+    }
+
+    .danger-button {
+      color: #a7352a;
+      border-color: rgba(224, 99, 79, 0.5);
+    }
+
+    .danger-button:hover {
+      background: #fff0ed;
+    }
+
+    .controls-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: none;
+      place-items: center;
+      padding: 18px;
+      background: rgba(23, 32, 45, 0.28);
+    }
+
+    .controls-overlay.open {
+      display: grid;
+    }
+
+    .controls-panel {
+      width: min(480px, 100%);
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 22px 60px rgba(23, 32, 45, 0.24);
+    }
+
+    .controls-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .controls-head h2 {
+      font-size: 1.12rem;
+    }
+
+    .icon-button {
+      min-width: 36px;
+      min-height: 36px;
+      padding: 0;
+      border-radius: 50%;
+    }
+
+    .control-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 850;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    input,
+    select {
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      background: #ffffff;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .qty-control {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) 42px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .qty-control button {
+      min-height: 38px;
+      padding: 0;
+      border-radius: 8px;
+      font-size: 1.2rem;
+    }
+
+    .divider {
+      height: 1px;
+      margin: 2px 0;
+      background: var(--line);
+    }
+
+    .control-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .three-actions {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .kpi,
+    .panel {
+      background: var(--surface);
+      border: 1px solid rgba(217, 225, 234, 0.9);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .kpi {
+      min-height: 66px;
+      padding: 9px 14px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      align-content: space-between;
+      overflow: hidden;
+    }
+
+    .kpi strong {
+      display: block;
+      margin-top: 2px;
+      font-size: clamp(1.45rem, 2.6vw, 1.95rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .kpi strong.small-kpi {
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .kpi span {
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.25;
+    }
+
+    .dashboard {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1.54fr) minmax(390px, 0.88fr);
+      gap: 10px;
+    }
+
+    .panel {
+      min-height: 0;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 6px;
+    }
+
+    .panel-note {
+      color: var(--muted);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .bars {
+      height: calc(100% - 30px);
+      min-height: 0;
+      display: grid;
+      align-content: start;
+      gap: 1px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 275px minmax(0, 1fr) 42px;
+      align-items: center;
+      gap: 8px;
+      min-height: 14px;
+      font-size: 0.6rem;
+      font-weight: 820;
+      padding: 2px 4px;
+      border-bottom: 1px solid rgba(217, 225, 234, 0.9);
+      border-radius: 4px;
+    }
+
+    .bar-row:nth-child(even) {
+      background: rgba(238, 243, 248, 0.72);
+    }
+
+    .bar-row.is-selected {
+      background: #fff3d7;
+      border-left: 4px solid var(--gold);
+      box-shadow: inset 0 0 0 1px rgba(217, 154, 43, 0.3);
+    }
+
+    .bar-row:last-child {
+      border-bottom: 0;
+    }
+
+    .bar-row strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .track {
+      height: 7px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-svg,
+    .family-svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .bar-value {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .side {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      gap: 7px;
+    }
+
+    .family-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .family {
+      min-height: 39px;
+      padding: 5px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--soft);
+      display: grid;
+      align-content: space-between;
+    }
+
+    .family span {
+      color: var(--muted);
+      font-size: 0.44rem;
+      font-weight: 850;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+
+    .family strong {
+      font-size: 0.9rem;
+      line-height: 1;
+    }
+
+    .family-bar {
+      height: 5px;
+      margin-top: 5px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .table-panel {
+      min-height: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+    }
+
+    .table-wrap {
+      min-height: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 0.5rem;
+    }
+
+    th,
+    td {
+      padding: 1px 4px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      line-height: 0.95;
+    }
+
+    th {
+      background: #f8fafc;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(238, 243, 248, 0.65);
+    }
+
+    tbody tr:hover,
+    .bar-row:hover {
+      background: #e9f0f7;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th:nth-child(2),
+    th:nth-child(3),
+    td:nth-child(2),
+    td:nth-child(3) {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 62%;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 20%;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+      width: 18%;
+    }
+
+    .piece {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 830;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .swatch {
+      width: 9px;
+      height: 9px;
+      border-radius: 3px;
+      flex: 0 0 auto;
+    }
+
+    .swatch svg {
+      display: block;
+    }
+
+    @media print {
+      @page {
+        size: letter landscape;
+        margin: 6mm;
+      }
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        background: #ffffff;
+        overflow: hidden;
+        display: block;
+      }
+
+      .stage {
+        width: 254mm !important;
+        height: 178mm !important;
+        transform: none !important;
+        overflow: hidden;
+      }
+
+      .page {
+        width: 254mm;
+        height: 178mm;
+        padding: 0;
+        gap: 7px;
+        background: #ffffff;
+        overflow: hidden;
+      }
+
+      .actions {
+        display: none;
+      }
+
+      .controls-overlay {
+        display: none !important;
+      }
+
+      .kpi,
+      .panel {
+        box-shadow: none;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+
+      .subtitle {
+        font-size: 0.78rem;
+      }
+
+      .kpi {
+        min-height: 64px;
+        padding: 8px 10px;
+      }
+
+      .kpi strong {
+        font-size: 1.45rem;
+      }
+
+      .kpi span,
+      .panel-note {
+        font-size: 0.7rem;
+      }
+
+      .panel {
+        padding: 6px;
+      }
+
+      .side {
+        grid-template-rows: auto minmax(0, 1fr);
+        gap: 4px;
+      }
+
+      .panel-head {
+        margin-bottom: 3px;
+      }
+
+      .panel h2 {
+        font-size: 0.82rem;
+      }
+
+      .bar-row {
+        min-height: 13px;
+        gap: 8px;
+        font-size: 0.54rem;
+        padding: 1px 3px;
+      }
+
+      .track {
+        height: 7px;
+      }
+
+      th,
+      td {
+        padding: 1px 4px;
+        font-size: 0.39rem;
+        line-height: 0.92;
+      }
+
+      .family {
+        min-height: 35px;
+        padding: 4px;
+      }
+
+      .family span {
+        font-size: 0.42rem;
+      }
+
+      .family strong {
+        font-size: 0.74rem;
+      }
+
+      .family-bar {
+        height: 3px;
+        margin-top: 3px;
+      }
+
+      .swatch {
+        width: 6px;
+        height: 6px;
+      }
+
+      .swatch svg {
+        width: 6px;
+        height: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="stage" id="stage">
+    <main class="page">
+      <header>
+        <div>
+          <p class="eyebrow">Inventario</p>
+          <h1>Dashboard de piezas</h1>
+          <p class="subtitle">Conteo consolidado en una sola pantalla, listo para revisar, imprimir o guardar como PDF.</p>
+        </div>
+        <div class="actions">
+          <span class="date-pill">12 mayo 2026</span>
+          <button class="ghost-button" type="button" id="openControls">Contar kits</button>
+          <button type="button" onclick="window.print()">Descargar PDF</button>
+        </div>
+      </header>
+
+      <section class="kpis" aria-label="Resumen general">
+        <article class="kpi">
+          <p class="kpi-label">Total de piezas</p>
+          <strong id="totalPieces">867</strong>
+          <span>Suma completa</span>
+        </article>
+        <article class="kpi">
+          <p class="kpi-label">Tipos</p>
+          <strong id="typeCount">27</strong>
+          <span>Claves registradas</span>
+        </article>
+        <article class="kpi">
+          <p class="kpi-label">Mayor conteo</p>
+          <strong id="topPiece">ES1</strong>
+          <span id="topNote">223 piezas, 25.7%</span>
+        </article>
+        <article class="kpi">
+          <p class="kpi-label">Menor conteo</p>
+          <strong class="small-kpi" id="lowPiece">Uaro rosa #3</strong>
+          <span id="lowNote">1 pieza, 0.1%</span>
+        </article>
+      </section>
+
+      <section class="dashboard">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Conteo por pieza</h2>
+            <span class="panel-note">Ordenado de mayor a menor</span>
+          </div>
+          <div class="bars" id="bars" aria-label="Grafica de barras por pieza"></div>
+        </article>
+
+        <section class="side">
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Total por familia</h2>
+              <span class="panel-note">Participacion agrupada</span>
+            </div>
+            <div class="family-grid" id="families"></div>
+          </article>
+
+          <article class="panel table-panel">
+            <div class="panel-head">
+              <h2>Detalle</h2>
+            <span class="panel-note" id="detailNote">% sobre 867</span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pieza</th>
+                    <th>Cantidad</th>
+                    <th>% total</th>
+                  </tr>
+                </thead>
+                <tbody id="table"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <section class="controls-overlay" id="controlsOverlay" aria-hidden="true">
+    <div class="controls-panel" role="dialog" aria-modal="true" aria-labelledby="controlsTitle">
+      <div class="controls-head">
+        <div>
+          <p class="eyebrow">Conteo</p>
+          <h2 id="controlsTitle">Agregar kits</h2>
+        </div>
+        <button class="icon-button" type="button" id="closeControls" aria-label="Cerrar">x</button>
+      </div>
+
+      <div class="control-grid">
+        <label>
+          Kit existente
+          <select id="kitSelect"></select>
+        </label>
+
+        <label>
+          Cantidad
+          <div class="qty-control">
+            <button type="button" id="minusQty">-</button>
+            <input id="qtyInput" type="number" min="1" step="1" value="1" />
+            <button type="button" id="plusQty">+</button>
+          </div>
+        </label>
+
+        <div class="control-actions three-actions">
+          <button type="button" id="addExisting">Sumar</button>
+          <button class="ghost-button" type="button" id="subtractExisting">Restar</button>
+          <button class="ghost-button" type="button" id="setExisting">Definir total</button>
+        </div>
+
+        <label>
+          Editar nombre del kit seleccionado
+          <input id="editKitName" type="text" placeholder="Nombre actualizado" />
+        </label>
+
+        <div class="control-actions">
+          <button class="ghost-button" type="button" id="renameKit">Guardar nombre</button>
+          <button class="ghost-button danger-button" type="button" id="deleteKit">Borrar kit</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <label>
+          Nombre de kit nuevo
+          <input id="newKitName" type="text" placeholder="Ej. Nuevo kit #1" />
+        </label>
+
+        <label>
+          Familia
+          <input id="newKitFamily" type="text" list="familyOptions" placeholder="Ej. Uaro" />
+          <datalist id="familyOptions"></datalist>
+        </label>
+
+        <div class="control-actions">
+          <button type="button" id="addNew">Agregar nuevo</button>
+          <button class="ghost-button" type="button" id="resetCounts">Restaurar base</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const stage = document.querySelector("#stage");
+    const fitStage = () => {
+      const scale = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+      stage.style.transform = `scale(${scale})`;
+      stage.style.width = `${1280 * scale}px`;
+      stage.style.height = `${720 * scale}px`;
+    };
+
+    window.addEventListener("resize", fitStage);
+    fitStage();
+
+    const STORAGE_KEY = "dashboardPiecesV4";
+    const API_URL = "/.netlify/functions/pieces";
+    const basePieces = [
+      { name: "ES1", count: 223, family: "ES" },
+      { name: "JR1", count: 145, family: "JR" },
+      { name: "RM1", count: 99, family: "RM" },
+      { name: "JR2", count: 74, family: "JR" },
+      { name: "RM2", count: 58, family: "RM" },
+      { name: "RM4-5", count: 43, family: "RM" },
+      { name: "Uaro amarillo (coding robot) con num. coreano", count: 30, family: "Uaro" },
+      { name: "RM4", count: 26, family: "RM" },
+      { name: "RM5-6", count: 20, family: "RM" },
+      { name: "Robo and block #1", count: 19, family: "Robo" },
+      { name: "CS1", count: 18, family: "CS" },
+      { name: "Robo and block 1.2", count: 18, family: "Robo" },
+      { name: "RM3", count: 11, family: "RM" },
+      { name: "Aikiro2", count: 11, family: "Aikiro" },
+      { name: "Robo and blocks #1 coreano arriba", count: 11, family: "Robo" },
+      { name: "Uaro amarillo (coding robot) num. coreano", count: 10, family: "Uaro" },
+      { name: "RM1-2", count: 9, family: "RM" },
+      { name: "Uaro rosa #2", count: 8, family: "Uaro" },
+      { name: "CS2", count: 6, family: "CS" },
+      { name: "JR3", count: 6, family: "JR" },
+      { name: "Aikiro1", count: 5, family: "Aikiro" },
+      { name: "Uaro blanco num. coreano", count: 4, family: "Uaro" },
+      { name: "Uaro rosa #4", count: 4, family: "Uaro" },
+      { name: "RM6", count: 3, family: "RM" },
+      { name: "RM7", count: 3, family: "RM" },
+      { name: "RM5", count: 2, family: "RM" },
+      { name: "Uaro rosa #3", count: 1, family: "Uaro" }
+    ];
+
+    const colors = {
+      JR: "#243b6b",
+      RM: "#1f9d8a",
+      ES: "#e0634f",
+      CS: "#d99a2b",
+      Aikiro: "#7357c7",
+      Uaro: "#2f80c5",
+      Robo: "#c44d8f",
+      Otros: "#4f9a52"
+    };
+    const fallbackColors = ["#4f9a52", "#8b5e34", "#487b8f", "#9a6fb0", "#b66a44", "#5f6d7a"];
+
+    const bars = document.querySelector("#bars");
+    const table = document.querySelector("#table");
+    const families = document.querySelector("#families");
+    const totalPieces = document.querySelector("#totalPieces");
+    const typeCount = document.querySelector("#typeCount");
+    const topPiece = document.querySelector("#topPiece");
+    const topNote = document.querySelector("#topNote");
+    const lowPiece = document.querySelector("#lowPiece");
+    const lowNote = document.querySelector("#lowNote");
+    const detailNote = document.querySelector("#detailNote");
+    const controlsOverlay = document.querySelector("#controlsOverlay");
+    const kitSelect = document.querySelector("#kitSelect");
+    const familyOptions = document.querySelector("#familyOptions");
+    const qtyInput = document.querySelector("#qtyInput");
+    const newKitName = document.querySelector("#newKitName");
+    const newKitFamily = document.querySelector("#newKitFamily");
+    const editKitName = document.querySelector("#editKitName");
+
+    let pieces = loadPieces();
+    let selectedKitName = "";
+    let sharedStorageReady = false;
+    let saveTimer;
+
+    function loadPieces() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (Array.isArray(saved) && saved.length) {
+          return saved.map((item) => ({
+            name: String(item.name || "").trim(),
+            count: Math.max(0, Number(item.count) || 0),
+            family: String(item.family || "Otros").trim() || "Otros"
+          })).filter((item) => item.name);
+        }
+      } catch (error) {
+        console.warn("No se pudo leer el conteo guardado.", error);
+      }
+      return basePieces.map((item) => ({ ...item }));
+    }
+
+    function savePieces() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(pieces));
+      if (sharedStorageReady) {
+        window.clearTimeout(saveTimer);
+        saveTimer = window.setTimeout(saveSharedPieces, 250);
+      }
+    }
+
+    async function loadSharedPieces() {
+      try {
+        const response = await fetch(API_URL, {
+          headers: { Accept: "application/json" },
+          cache: "no-store"
+        });
+        if (!response.ok) return;
+
+        const data = await response.json();
+        const sharedPieces = sanitizePieces(data.pieces);
+        sharedStorageReady = true;
+        if (sharedPieces) {
+          pieces = sharedPieces;
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(pieces));
+          render(false);
+        }
+      } catch (error) {
+        console.info("Guardado compartido no disponible; usando guardado local.", error);
+      }
+    }
+
+    async function saveSharedPieces() {
+      try {
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ pieces })
+        });
+      } catch (error) {
+        console.warn("No se pudo guardar el conteo compartido.", error);
+      }
+    }
+
+    function sanitizePieces(value) {
+      if (!Array.isArray(value)) return null;
+      const cleaned = value
+        .map((item) => ({
+          name: String(item.name || "").trim(),
+          count: Math.max(0, Math.round(Number(item.count) || 0)),
+          family: String(item.family || "Otros").trim() || "Otros"
+        }))
+        .filter((item) => item.name);
+
+      return cleaned.length ? cleaned : null;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function getColor(family) {
+      if (colors[family]) return colors[family];
+      const familiesList = [...new Set(pieces.map((item) => item.family))].sort();
+      const index = familiesList.indexOf(family);
+      return fallbackColors[Math.max(0, index) % fallbackColors.length];
+    }
+
+    function formatPieces(count) {
+      return `${count} ${count === 1 ? "pieza" : "piezas"}`;
+    }
+
+    function sortedPieces() {
+      return [...pieces].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    }
+
+    function renderControls(sorted) {
+      if (!selectedKitName || !sorted.some((item) => item.name === selectedKitName)) {
+        selectedKitName = sorted[0]?.name || "";
+      }
+
+      const alphabetical = [...pieces].sort((a, b) => a.name.localeCompare(b.name, "es", { numeric: true }));
+      kitSelect.innerHTML = alphabetical.map((item) => `
+        <option value="${escapeHtml(item.name)}">${escapeHtml(item.name)} (${item.count})</option>
+      `).join("");
+      kitSelect.value = selectedKitName;
+      editKitName.value = selectedKitName;
+
+      const familyList = [...new Set(pieces.map((item) => item.family))].sort();
+      familyOptions.innerHTML = familyList.map((family) => `
+        <option value="${escapeHtml(family)}"></option>
+      `).join("");
+      if (!newKitFamily.value) newKitFamily.value = familyList[0] || "Otros";
+    }
+
+    function render(shouldSave = true) {
+      const sorted = sortedPieces();
+      const total = sorted.reduce((sum, item) => sum + item.count, 0);
+      const maxPiece = Math.max(1, ...sorted.map((item) => item.count));
+      const lowest = [...sorted].sort((a, b) => a.count - b.count || a.name.localeCompare(b.name))[0];
+      const highest = sorted[0];
+      if (!selectedKitName || !sorted.some((item) => item.name === selectedKitName)) {
+        selectedKitName = highest?.name || "";
+      }
+
+      totalPieces.textContent = total;
+      typeCount.textContent = sorted.length;
+      topPiece.textContent = highest ? highest.name : "-";
+      topNote.textContent = highest ? `${formatPieces(highest.count)}, ${((highest.count / total) * 100).toFixed(1)}%` : "-";
+      lowPiece.textContent = lowest ? lowest.name : "-";
+      lowNote.textContent = lowest ? `${formatPieces(lowest.count)}, ${((lowest.count / total) * 100).toFixed(1)}%` : "-";
+      detailNote.textContent = `% sobre ${total}`;
+
+      bars.innerHTML = "";
+      table.innerHTML = "";
+
+      for (const item of sorted) {
+        const name = escapeHtml(item.name);
+        const color = getColor(item.family);
+        const percent = total ? ((item.count / total) * 100).toFixed(1) : "0.0";
+        bars.insertAdjacentHTML("beforeend", `
+          <div class="bar-row ${item.name === selectedKitName ? "is-selected" : ""}" data-kit="${name}">
+            <strong title="${name}">${name}</strong>
+            <div class="track">
+              <svg class="bar-svg" viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true">
+                <rect x="0" y="0.5" width="100" height="11" rx="5.5" fill="#eef3f8" stroke="#d9e1ea" stroke-width="1" />
+                <rect x="0" y="0.5" width="${(item.count / maxPiece) * 100}" height="11" rx="5.5" fill="${color}" />
+              </svg>
+            </div>
+            <span class="bar-value">${item.count}</span>
+          </div>
+        `);
+        table.insertAdjacentHTML("beforeend", `
+          <tr>
+            <td><span class="piece" title="${name}"><span class="swatch"><svg width="9" height="9" viewBox="0 0 9 9" aria-hidden="true"><rect width="9" height="9" rx="2.5" fill="${color}" /></svg></span>${name}</span></td>
+            <td>${item.count}</td>
+            <td>${percent}%</td>
+          </tr>
+        `);
+      }
+
+      const familyTotals = pieces.reduce((totals, item) => {
+        totals[item.family] = (totals[item.family] || 0) + item.count;
+        return totals;
+      }, {});
+      const maxFamily = Math.max(1, ...Object.values(familyTotals));
+      families.innerHTML = "";
+
+      Object.entries(familyTotals)
+        .sort((a, b) => b[1] - a[1])
+        .forEach(([family, count]) => {
+          const color = getColor(family);
+          families.insertAdjacentHTML("beforeend", `
+            <div class="family">
+              <span>${escapeHtml(family)}</span>
+              <strong>${count}</strong>
+              <div class="family-bar">
+                <svg class="family-svg" viewBox="0 0 100 6" preserveAspectRatio="none" aria-hidden="true">
+                  <rect width="100" height="6" rx="3" fill="#d9e1ea" />
+                  <rect width="${(count / maxFamily) * 100}" height="6" rx="3" fill="${color}" />
+                </svg>
+              </div>
+            </div>
+          `);
+        });
+
+      renderControls(sorted);
+      if (shouldSave) savePieces();
+    }
+
+    function quantity() {
+      return Math.max(1, Math.round(Number(qtyInput.value) || 1));
+    }
+
+    function setQuantity(value) {
+      qtyInput.value = Math.max(1, value);
+    }
+
+    document.querySelector("#openControls").addEventListener("click", () => {
+      controlsOverlay.classList.add("open");
+      controlsOverlay.setAttribute("aria-hidden", "false");
+      qtyInput.focus();
+    });
+
+    document.querySelector("#closeControls").addEventListener("click", () => {
+      controlsOverlay.classList.remove("open");
+      controlsOverlay.setAttribute("aria-hidden", "true");
+    });
+
+    controlsOverlay.addEventListener("click", (event) => {
+      if (event.target === controlsOverlay) {
+        controlsOverlay.classList.remove("open");
+        controlsOverlay.setAttribute("aria-hidden", "true");
+      }
+    });
+
+    document.querySelector("#minusQty").addEventListener("click", () => setQuantity(quantity() - 1));
+    document.querySelector("#plusQty").addEventListener("click", () => setQuantity(quantity() + 1));
+
+    kitSelect.addEventListener("change", () => {
+      selectedKitName = kitSelect.value;
+      render();
+    });
+
+    bars.addEventListener("click", (event) => {
+      const row = event.target.closest(".bar-row");
+      if (!row) return;
+      selectedKitName = row.dataset.kit;
+      render();
+    });
+
+    document.querySelector("#addExisting").addEventListener("click", () => {
+      const selected = kitSelect.value;
+      const item = pieces.find((piece) => piece.name === selected);
+      if (!item) return;
+      selectedKitName = item.name;
+      item.count += quantity();
+      render();
+    });
+
+    document.querySelector("#subtractExisting").addEventListener("click", () => {
+      const selected = kitSelect.value;
+      const item = pieces.find((piece) => piece.name === selected);
+      if (!item) return;
+      selectedKitName = item.name;
+      item.count = Math.max(0, item.count - quantity());
+      render();
+    });
+
+    document.querySelector("#setExisting").addEventListener("click", () => {
+      const selected = kitSelect.value;
+      const item = pieces.find((piece) => piece.name === selected);
+      if (!item) return;
+      selectedKitName = item.name;
+      item.count = quantity();
+      render();
+    });
+
+    document.querySelector("#renameKit").addEventListener("click", () => {
+      const item = pieces.find((piece) => piece.name === selectedKitName);
+      const newName = editKitName.value.trim();
+      if (!item || !newName) {
+        editKitName.focus();
+        return;
+      }
+
+      const duplicate = pieces.find((piece) =>
+        piece !== item && piece.name.toLowerCase() === newName.toLowerCase()
+      );
+
+      if (duplicate) {
+        duplicate.count += item.count;
+        pieces = pieces.filter((piece) => piece !== item);
+        selectedKitName = duplicate.name;
+      } else {
+        item.name = newName;
+        selectedKitName = newName;
+      }
+
+      render();
+    });
+
+    document.querySelector("#deleteKit").addEventListener("click", () => {
+      const item = pieces.find((piece) => piece.name === selectedKitName);
+      if (!item) return;
+      if (!window.confirm(`Borrar "${item.name}" del dashboard?`)) return;
+
+      pieces = pieces.filter((piece) => piece !== item);
+      selectedKitName = pieces[0]?.name || "";
+      render();
+    });
+
+    document.querySelector("#addNew").addEventListener("click", () => {
+      const name = newKitName.value.trim();
+      const family = newKitFamily.value.trim() || "Otros";
+      if (!name) {
+        newKitName.focus();
+        return;
+      }
+
+      const existing = pieces.find((item) => item.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        existing.count += quantity();
+        existing.family = family;
+        selectedKitName = existing.name;
+      } else {
+        pieces.push({ name, count: quantity(), family });
+        selectedKitName = name;
+      }
+
+      newKitName.value = "";
+      render();
+    });
+
+    document.querySelector("#resetCounts").addEventListener("click", () => {
+      pieces = basePieces.map((item) => ({ ...item }));
+      localStorage.removeItem(STORAGE_KEY);
+      render();
+    });
+
+    render(false);
+    loadSharedPieces();
+  </script>
+</body>
+</html>
