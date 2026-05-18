@@ -16,6 +16,17 @@ function getBlobOptions() {
   return siteID && token ? { siteID, token } : undefined;
 }
 
+function getEnvStatus() {
+  return {
+    hasSiteID: Boolean(process.env.NETLIFY_SITE_ID || process.env.SITE_ID),
+    hasToken: Boolean(
+      process.env.NETLIFY_BLOBS_TOKEN ||
+        process.env.NETLIFY_AUTH_TOKEN ||
+        process.env.NETLIFY_API_TOKEN
+    )
+  };
+}
+
 function cleanPieces(value) {
   if (!Array.isArray(value)) return null;
 
@@ -39,7 +50,7 @@ exports.handler = async (event) => {
   try {
     const { getStore } = await import("@netlify/blobs");
     const options = getBlobOptions();
-    store = options ? getStore(STORE_NAME, options) : getStore(STORE_NAME);
+    store = options ? getStore({ name: STORE_NAME, ...options }) : getStore(STORE_NAME);
   } catch (error) {
     return {
       statusCode: 500,
@@ -48,6 +59,7 @@ exports.handler = async (event) => {
         error: "Netlify Blobs no esta configurado",
         details:
           "Agrega NETLIFY_SITE_ID y NETLIFY_BLOBS_TOKEN en Site configuration > Environment variables.",
+        env: getEnvStatus(),
         message: error.message
       })
     };
